@@ -20,7 +20,7 @@ CONFIG = {
     
     # LLM
     "llm_provider": "gemini",  # ou "ollama"
-    "llm_model": "gemini-3-flash",  # ou "llama3.2" / "mistral"
+    "llm_model": "gemini-2.5-flash",  # ou "llama3.2" / "mistral"
     "llm_temperature": 0.1,
     "llm_streaming": True,
     
