@@ -1,21 +1,16 @@
 from src.config import CONFIG, GEMINI_API_KEY
-from langchain_google_genai import GoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain_openai import ChatOpenAI
 
-def create_llm():
-    if CONFIG["llm_provider"] == "gemini":
-        if not GEMINI_API_KEY:
-            raise ValueError("GEMINI_API_KEY manquante")
-        return GoogleGenerativeAI(
-            model=CONFIG["llm_model"],
-            temperature=CONFIG["llm_temperature"],
-            google_api_key=GEMINI_API_KEY,
-            streaming=CONFIG["llm_streaming"],
-            callbacks=([StreamingStdOutCallbackHandler()] if CONFIG["llm_streaming"] else [])
-        )
-    else:
-        raise ValueError("Provider non supporté")
+def get_llm():
+    llm = ChatOpenAI(
+        openai_api_key=os.getenv("OPENROUTER_API_KEY"),
+        openai_api_base="https://openrouter.ai/api/v1",
+        model_name="meta-llama/llama-3.3-70b-instruct",
+        temperature=0.2
+    )
+    return llm
 
 def create_generation_prompt():
     return ChatPromptTemplate.from_messages([
