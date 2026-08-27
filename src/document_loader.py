@@ -87,7 +87,7 @@ def chunk_documents(documents):
         length_function=len,
     )
 
-    chunks = text_splitter.split_text(documents)
+    chunks = text_splitter.split_content(documents)
 
 
 
