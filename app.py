@@ -16,31 +16,6 @@ def get_pipeline():
     return pipeline
 
 pipeline = get_pipeline()
-
-# --- Sidebar : gestion des documents ---
-with st.sidebar:
-    st.header("📁 Gestion des documents")
-    
-    uploaded_files = st.file_uploader(
-        "Ajouter des documents (PDF, TXT, MD)",
-        type=["pdf", "txt", "md"],
-        accept_multiple_files=True
-    )
-    if uploaded_files:
-        for file in uploaded_files:
-            save_path = Path(CONFIG["docs_directory"]) / file.name
-            with open(save_path, "wb") as f:
-                f.write(file.getbuffer())
-            st.success(f"✅ {file.name} téléchargé")
-    
-    if st.button("🔄 Réindexer tous les documents", type="primary"):
-        with st.spinner("Indexation en cours..."):
-            index_documents(pipeline)
-            st.cache_resource.clear()
-            st.success("✅ Indexation terminée !")
-            st.rerun()
-    
-    st.divider()
     
 # --- Zone de chat ---
 if "messages" not in st.session_state:
