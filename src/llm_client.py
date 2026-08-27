@@ -7,7 +7,7 @@ def get_llm():
     llm = ChatOpenAI(
         openai_api_key=os.getenv("OPENROUTER_API_KEY"),
         openai_api_base="https://openrouter.ai/api/v1",
-        model_name="meta-llama/llama-3.3-70b-instruct",
+        model_name="deepseek/deepseek-r1",
         temperature=0.2
     )
     return llm
