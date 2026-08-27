@@ -19,9 +19,8 @@ CONFIG = {
     "top_k_final": 5,
     
     # LLM
-    "llm_provider": "gemini",  # ou "ollama"
-    "llm_model": "gemini-1.5-pro",  # ou "llama3.2" / "mistral"
-    "llm_temperature": 0.1,
+    "llm_model": "deepseek/deepseek-r1",  # ou "llama3.2" / "mistral"
+    "llm_temperature": 0.2,
     "llm_streaming": True,
     
     # Chemins
