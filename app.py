@@ -504,33 +504,34 @@ if st.sidebar.button("Tester les retrievers"):
     else:
         st.subheader("🔎 Diagnostic des retrievers")
 
-        for i, sub_retriever in enumerate(retriever.retrievers):
-            try:
-                docs = sub_retriever.invoke(test_query)
-
-                st.markdown(
-                    f"### Retriever {i + 1} — "
-                    f"`{type(sub_retriever).__name__}`"
-                )
-
-                for j, doc in enumerate(docs[:5]):
+        if hasattr(retriever, "retrievers"):
+            for i, sub_retriever in enumerate(retriever.retrievers):
+                try:
+                    docs = sub_retriever.invoke(test_query)
+    
                     st.markdown(
-                        f"**Document {j + 1}**"
+                        f"### Retriever {i + 1} — "
+                        f"`{type(sub_retriever).__name__}`"
                     )
-
-                    st.write(
-                        "Source :",
-                        doc.metadata.get("filename", "Inconnu")
+    
+                    for j, doc in enumerate(docs[:5]):
+                        st.markdown(
+                            f"**Document {j + 1}**"
+                        )
+    
+                        st.write(
+                            "Source :",
+                            doc.metadata.get("filename", "Inconnu")
+                        )
+    
+                        st.code(
+                            doc.page_content[:500]
+                        )
+    
+                except Exception as e:
+                    st.error(
+                        f"Erreur avec le retriever {i + 1} : {e}"
                     )
-
-                    st.code(
-                        doc.page_content[:500]
-                    )
-
-            except Exception as e:
-                st.error(
-                    f"Erreur avec le retriever {i + 1} : {e}"
-                )
 # ---------------------------------------------------------
 # BARRE LATÉRALE
 # ---------------------------------------------------------
