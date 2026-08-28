@@ -16,5 +16,6 @@ dependencies = [
     "sentence-transformers>=5.0.0",
     "streamlit>=1.62.0",
     "langchain-openai",
-    "python-dotenv"
+    "python-dotenv",
+    "tiktoken"
 ]
