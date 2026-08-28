@@ -54,18 +54,11 @@ def evaluate_context_sufficiency(llm, query, documents):
 
 Déterminez si le contexte fourni permet réellement de répondre à la question.
 
-Répondez UNIQUEMENT par l'une des trois valeurs suivantes :
+Répondez UNIQUEMENT par une des trois valeurs suivantes :
 
 SUFFICIENT
-Le contexte contient les informations nécessaires pour répondre.
-
 INSUFFICIENT
-La question est compréhensible mais le contexte ne contient pas suffisamment
-d'informations pour répondre avec certitude.
-
-NEED_CLARIFICATION
-La question elle-même est trop ambiguë pour déterminer ce que l'utilisateur
-demande."""
+NEED_CLARIFICATION"""
         ),
         (
             "human",
@@ -97,7 +90,7 @@ Question :
 
         response_text = response_text.strip().upper()
 
-        if "SUFFICIENT" in response_text:
+        if response_text == "SUFFICIENT":
             return True
 
         return False
