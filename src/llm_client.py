@@ -2,6 +2,7 @@ from src.config import CONFIG, GEMINI_API_KEY
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain_openai import ChatOpenAI
+import os
 
 def get_llm():
     llm = ChatOpenAI(
