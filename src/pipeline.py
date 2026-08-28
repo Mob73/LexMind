@@ -15,13 +15,11 @@ def initialize_pipeline():
     llm = create_llm()
     prompt = create_generation_prompt()
 
-    # Essayer de charger l'index existant
     vector_store = load_vector_store()
     hybrid_retriever = None
     is_indexed = False
 
     if vector_store:
-        # Essayer de charger les chunks pour recréer le BM25
         chunks = load_chunks()
         if chunks:
             print("✅ Chunks trouvés, création du retriever hybride...")
@@ -53,7 +51,7 @@ def index_documents(pipeline_state):
         raise ValueError("Aucun document chargé.")
 
     chunks = chunk_documents(docs)
-    vector_store = create_vector_store(chunks)   # sauvegarde aussi les chunks
+    vector_store = create_vector_store(chunks)
 
     hybrid_retriever = create_hybrid_retriever(chunks, vector_store)
 
@@ -81,28 +79,45 @@ def query_pipeline(pipeline_state, question):
     hybrid_retriever = pipeline_state["hybrid_retriever"]
     prompt = pipeline_state["prompt"]
 
-    # Récupération des documents
     if CONFIG["enable_agentic_retrieval"]:
-        documents, context_sufficient = agentic_retrieve(llm, hybrid_retriever, question)
+        documents, context_sufficient = agentic_retrieve(
+            llm,
+            hybrid_retriever,
+            question
+        )
         print(f"📊 Context sufficient: {context_sufficient}")
     else:
-        documents = hybrid_retrieve(hybrid_retriever, question)
+        documents = hybrid_retrieve(
+            hybrid_retriever,
+            question
+        )
         print(f"📊 Retrieved {len(documents)} documents")
 
-    # Génération de la réponse
     print("\n🤖 Generating answer...")
+
     context = "\n\n---\n\n".join(
-        [f"[Source: {doc.metadata.get('filename', 'Inconnu')}]\n{doc.page_content}" for doc in documents]
+        [
+            f"[Source: {doc.metadata.get('filename', 'Inconnu')}]\n{doc.page_content}"
+            for doc in documents
+        ]
     )
 
     chain = prompt | llm
+
     response = chain.invoke({
         "context": context,
         "question": question,
         "chat_history": [],
     })
-    
+
     answer = response.content
+
+    if isinstance(answer, list):
+        answer = "".join(
+            block.get("text", "")
+            for block in answer
+            if isinstance(block, dict) and block.get("type") == "text"
+        )
 
     print("\n" + "="*60)
     print("✅ Answer generated")
