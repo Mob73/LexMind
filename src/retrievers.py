@@ -1,6 +1,8 @@
+```python
 from langchain_classic.retrievers import EnsembleRetriever
 from langchain_community.retrievers import BM25Retriever
 from langchain_core.prompts import ChatPromptTemplate
+
 from src.config import CONFIG
 
 
@@ -34,7 +36,7 @@ def create_hybrid_retriever(chunks, vector_store):
 
 
 def hybrid_retrieve(retriever, query):
-    """Teste directement la recherche Chroma et le retriever."""
+    """Exécute la recherche avec diagnostic complet dans Streamlit."""
     import streamlit as st
 
     try:
@@ -45,36 +47,60 @@ def hybrid_retrieve(retriever, query):
             f"**Retriever :** `{type(retriever).__name__}`"
         )
 
+        # ==================================================
+        # RÉCUPÉRER LE VECTOR STORE
+        # ==================================================
+
         vector_store = getattr(
             retriever,
             "vectorstore",
             None
         )
 
+        # Si le retriever est un EnsembleRetriever,
+        # chercher le vector store dans ses sous-retrievers.
+        if vector_store is None and hasattr(retriever, "retrievers"):
+            for sub_retriever in retriever.retrievers:
+                vector_store = getattr(
+                    sub_retriever,
+                    "vectorstore",
+                    None
+                )
+
+                if vector_store is not None:
+                    break
+
         if vector_store is None:
             st.error(
                 "❌ Impossible de récupérer le vector store "
                 "depuis le retriever."
             )
+
             return []
 
-        # --------------------------------------------------
+        # ==================================================
         # 1. ÉTAT RÉEL DE LA COLLECTION CHROMA
-        # --------------------------------------------------
+        # ==================================================
 
         st.write("### 1️⃣ État réel de la collection Chroma")
 
         try:
             collection = vector_store._collection
 
+            total_count = collection.count()
+
             st.write(
                 f"**Nombre d'éléments dans la collection : "
-                f"{collection.count()}**"
+                f"{total_count}**"
             )
 
             sample = collection.get(
                 limit=5,
-                include=["documents", "metadatas", "embeddings"]
+                include=[
+                    "documents",
+                    "metadatas",
+                    "embeddings",
+                ],
             )
 
             sample_ids = sample.get("ids", [])
@@ -101,19 +127,19 @@ def hybrid_retrieve(retriever, query):
                 )
 
                 st.write(
-                    f"**Premiers éléments du vecteur : 
-                    `{first_embedding[:5]}`"
+                    f"**Premiers éléments du vecteur : "
+                    f"`{first_embedding[:5]}`"
                 )
 
-            for i in range(len(sample_documents)):
+            for i, document in enumerate(sample_documents):
                 st.write(f"#### Exemple {i + 1}")
 
                 st.code(
-                    sample_documents[i][:500],
-                    language=None
+                    document[:500],
+                    language=None,
                 )
 
-                if sample_metadatas:
+                if i < len(sample_metadatas):
                     st.write(
                         f"**Metadata :** "
                         f"`{sample_metadatas[i]}`"
@@ -121,54 +147,63 @@ def hybrid_retrieve(retriever, query):
 
         except Exception as e:
             st.error(
-                f"❌ Erreur inspection collection Chroma : "
+                "❌ Erreur inspection collection Chroma : "
                 f"`{type(e).__name__}: {e}`"
             )
 
             st.exception(e)
 
-        # --------------------------------------------------
+        # ==================================================
         # 2. RECHERCHE CHROMA BRUTE
-        # --------------------------------------------------
+        # ==================================================
 
         st.write("### 2️⃣ Recherche Chroma brute")
 
-        raw_docs = vector_store.similarity_search(
-            query,
-            k=5
-        )
-
-        st.write(
-            f"**Nombre de résultats Chroma : "
-            f"{len(raw_docs)}**"
-        )
-
-        for i, doc in enumerate(raw_docs):
-            st.write(
-                f"#### Résultat Chroma {i + 1}"
+        try:
+            raw_docs = vector_store.similarity_search(
+                query,
+                k=5,
             )
 
             st.write(
-                f"**Metadata :** `{doc.metadata}`"
+                f"**Nombre de résultats Chroma : "
+                f"{len(raw_docs)}**"
             )
 
-            st.code(
-                doc.page_content[:1000],
-                language=None
+            for i, doc in enumerate(raw_docs):
+                st.write(
+                    f"#### Résultat Chroma {i + 1}"
+                )
+
+                st.write(
+                    f"**Metadata :** `{doc.metadata}`"
+                )
+
+                st.code(
+                    doc.page_content[:1000],
+                    language=None,
+                )
+
+        except Exception as e:
+            st.error(
+                "❌ Erreur pendant similarity_search : "
+                f"`{type(e).__name__}: {e}`"
             )
 
-        # --------------------------------------------------
-        # 2. SCORES DE SIMILARITÉ
-        # --------------------------------------------------
+            st.exception(e)
 
-        st.write("### 2️⃣ Scores de similarité")
+        # ==================================================
+        # 3. SCORES DE SIMILARITÉ
+        # ==================================================
+
+        st.write("### 3️⃣ Scores de similarité")
 
         try:
             scored_docs = (
                 vector_store
                 .similarity_search_with_relevance_scores(
                     query,
-                    k=5
+                    k=5,
                 )
             )
 
@@ -178,14 +213,17 @@ def hybrid_retrieve(retriever, query):
             )
 
             for i, (doc, score) in enumerate(scored_docs):
-
                 st.write(
                     f"#### Score {i + 1} : `{score}`"
                 )
 
+                st.write(
+                    f"**Metadata :** `{doc.metadata}`"
+                )
+
                 st.code(
                     doc.page_content[:500],
-                    language=None
+                    language=None,
                 )
 
         except Exception as e:
@@ -193,40 +231,50 @@ def hybrid_retrieve(retriever, query):
                 "❌ Impossible de récupérer les scores : "
                 f"`{type(e).__name__}: {e}`"
             )
+
             st.exception(e)
 
-        # --------------------------------------------------
-        # 3. RETRIEVER NORMAL
-        # --------------------------------------------------
+        # ==================================================
+        # 4. TEST DU RETRIEVER NORMAL
+        # ==================================================
 
-        st.write("### 3️⃣ Résultat du retriever")
+        st.write("### 4️⃣ Résultat du retriever")
 
-        docs = retriever.invoke(query)
-
-        st.write(
-            f"**Nombre de documents retournés : "
-            f"{len(docs)}**"
-        )
-
-        for i, doc in enumerate(docs):
+        try:
+            docs = retriever.invoke(query)
 
             st.write(
-                f"#### Document Retriever {i + 1}"
+                f"**Nombre de documents retournés : "
+                f"{len(docs)}**"
             )
 
-            st.write(
-                f"**Metadata :** `{doc.metadata}`"
+            for i, doc in enumerate(docs):
+                st.write(
+                    f"#### Document Retriever {i + 1}"
+                )
+
+                st.write(
+                    f"**Metadata :** `{doc.metadata}`"
+                )
+
+                st.code(
+                    doc.page_content[:1000],
+                    language=None,
+                )
+
+            return docs
+
+        except Exception as e:
+            st.error(
+                "❌ Erreur pendant le retriever : "
+                f"`{type(e).__name__}: {e}`"
             )
 
-            st.code(
-                doc.page_content[:1000],
-                language=None
-            )
+            st.exception(e)
 
-        return docs
+            return []
 
     except Exception as e:
-
         st.error(
             f"❌ Erreur pendant le diagnostic : "
             f"`{type(e).__name__}: {e}`"
@@ -235,6 +283,7 @@ def hybrid_retrieve(retriever, query):
         st.exception(e)
 
         return []
+
 
 def evaluate_context_sufficiency(llm, query, documents):
     """Évalue si le contexte est suffisant pour répondre."""
@@ -413,3 +462,4 @@ def agentic_retrieve(llm, hybrid_retriever, query):
         all_documents[:CONFIG["top_k_final"]],
         False
     )
+```
