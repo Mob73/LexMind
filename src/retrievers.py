@@ -48,7 +48,7 @@ def evaluate_context_sufficiency(llm, query, documents):
         - "SUFFICIENT" si le contexte contient toutes les informations nécessaires
         - "INSUFFICIENT" si des informations cruciales manquent
         - "NEED_CLARIFICATION" si la question est ambiguë"""),
-        ("human", f"Contexte: {context}\n\nQuestion: {query}"),
+        ("human", "Contexte: {context}\n\nQuestion: {question}"),
     ])
 
     try:
@@ -69,7 +69,7 @@ def refine_query(llm, original_query, retrieved_docs):
         ("system", """Vous êtes un expert en recherche d'information.
         Reformulez la question suivante pour améliorer la recherche de documents.
         Ajoutez des synonymes et des concepts connexes."""),
-        ("human", f"Question originale: {original_query}\n\nDocuments déjà trouvés: {context}\n\nNouvelle question:"),
+        ("human", "Question originale: {query}\n\nDocuments déjà trouvés: {context}\n\nNouvelle question:"),
     ])
 
     try:
