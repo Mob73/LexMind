@@ -3,16 +3,10 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 import streamlit as st
 
 def create_llm():
-    if not GEMINI_API_KEY:
-        st.write("GEMINI_API_KEY est absente.")
-        raise RuntimeError(
-            "GEMINI_API_KEY est absente. Configurez-la dans .env ou dans "
-            "les Secrets de Streamlit Cloud."
-        )
 
     return ChatGoogleGenerativeAI(
-        model="gemini-3.6-flash",
-        google_api_key=GEMINI_API_KEY,
+        model="gemini-1.5-pro",
+        google_api_key="AQ.Ab8RN6KEOjAGdNFCtFz4fmNAppYBx8Njih9JnJbYKykT6L48NQ",
         temperature=CONFIG["llm_temperature"],
     )
 
