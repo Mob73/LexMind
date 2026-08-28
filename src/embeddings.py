@@ -1,10 +1,8 @@
-from langchain_huggingface import HuggingFaceEmbeddings
-from src.config import CONFIG
+from langchain_openai import OpenAIEmbeddings
 
 def get_embeddings():
-    """Retourne le modèle d'embeddings."""
-    return HuggingFaceEmbeddings(
-        model_name=CONFIG["embedding_model"],
-        model_kwargs={"device": CONFIG["embedding_device"]},
-        encode_kwargs={"normalize_embeddings": True},
+    return OpenAIEmbeddings(
+        model="text-embedding-3-small",
+        openai_api_key=os.getenv("GEMINI_API_KEY"),
+        openai_api_base="https://openrouter.ai/api/v1"
     )
