@@ -34,8 +34,47 @@ def create_hybrid_retriever(chunks, vector_store):
 
 
 def hybrid_retrieve(retriever, query):
-    """Exécute la recherche hybride."""
-    return retriever.invoke(query)
+    """Exécute la recherche hybride avec diagnostic Streamlit."""
+    import streamlit as st
+
+    try:
+        docs = retriever.invoke(query)
+
+        st.info(
+            f"🔎 Retriever utilisé : `{type(retriever).__name__}`"
+        )
+
+        st.info(
+            f"📄 Nombre de documents récupérés : **{len(docs)}**"
+        )
+
+        for i, doc in enumerate(docs):
+            st.write(f"### Document {i + 1}")
+
+            st.write(
+                f"**Type :** `{type(doc).__name__}`"
+            )
+
+            st.write(
+                f"**Metadata :** `{doc.metadata}`"
+            )
+
+            st.code(
+                doc.page_content[:1000],
+                language=None
+            )
+
+        return docs
+
+    except Exception as e:
+        st.error(
+            f"❌ Erreur pendant la récupération : "
+            f"`{type(e).__name__}: {e}`"
+        )
+
+        st.exception(e)
+
+        return []
 
 
 def evaluate_context_sufficiency(llm, query, documents):
