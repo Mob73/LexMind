@@ -82,6 +82,93 @@ def hybrid_retrieve(retriever, query):
         # ==================================================
 
         st.write("### 1️⃣ État réel de la collection Chroma")
+                # ==================================================
+        # DIAGNOSTIC SQLITE DE CHROMA
+        # ==================================================
+
+        st.write("### 🗃️ Diagnostic SQLite")
+
+        try:
+            import sqlite3
+            from pathlib import Path
+
+            sqlite_path = (
+                Path(CONFIG["chroma_persist_directory"])
+                / "chroma.sqlite3"
+            )
+
+            st.write(
+                f"**Fichier SQLite :** `{sqlite_path}`"
+            )
+
+            if not sqlite_path.exists():
+                st.error(
+                    "❌ Le fichier chroma.sqlite3 n'existe pas."
+                )
+            else:
+                st.success(
+                    "✅ Le fichier chroma.sqlite3 existe."
+                )
+
+                connection = sqlite3.connect(
+                    str(sqlite_path)
+                )
+
+                cursor = connection.cursor()
+
+                cursor.execute(
+                    """
+                    SELECT name
+                    FROM sqlite_master
+                    WHERE type='table'
+                    ORDER BY name
+                    """
+                )
+
+                tables = [
+                    row[0]
+                    for row in cursor.fetchall()
+                ]
+
+                st.write(
+                    f"**Tables SQLite :** `{tables}`"
+                )
+
+                # Nombre de collections
+                if "collections" in tables:
+                    cursor.execute(
+                        "SELECT COUNT(*) FROM collections"
+                    )
+
+                    collection_count = cursor.fetchone()[0]
+
+                    st.write(
+                        f"**Nombre de collections : "
+                        f"{collection_count}**"
+                    )
+
+                # Nombre d'enregistrements embedding
+                if "embeddings" in tables:
+                    cursor.execute(
+                        "SELECT COUNT(*) FROM embeddings"
+                    )
+
+                    embedding_count = cursor.fetchone()[0]
+
+                    st.write(
+                        f"**Nombre de lignes dans embeddings : "
+                        f"{embedding_count}**"
+                    )
+
+                connection.close()
+
+        except Exception as e:
+            st.error(
+                "❌ Erreur lecture SQLite : "
+                f"`{type(e).__name__}: {e}`"
+            )
+
+            st.exception(e)
 
         try:
             collection = vector_store._collection
