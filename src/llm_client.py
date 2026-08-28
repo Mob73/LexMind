@@ -1,17 +1,13 @@
 from src.config import CONFIG, GEMINI_API_KEY
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain_openai import ChatOpenAI
-import os
-import streamlit as st
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 def get_llm():
-    llm = ChatOpenAI(
-        openai_api_key=st.secrets.get("GEMINI_API_KEY"),
-        openai_api_base="https://openrouter.ai/api/v1",
-        model_name="deepseek/deepseek-r1",
-        temperature=0.2
+    return ChatGoogleGenerativeAI(
+        model=CONFIG["llm_model"],
+        google_api_key=GEMINI_API_KEY,
+        temperature=CONFIG["llm_temperature"],
     )
-    return llm
 
 def create_generation_prompt():
     return ChatPromptTemplate.from_messages([

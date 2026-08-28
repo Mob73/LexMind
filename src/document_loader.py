@@ -1,8 +1,8 @@
 from pathlib import Path
-from langchain_community.document_loaders import PyPDFLoader, TextLoader, UnstructuredMarkdownLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from src.config import CONFIG
 import hashlib
+import pickle
+
+from config import CONFIG
 
 def load_documents(directory=None):
     """Charge tous les documents d'un répertoire"""
@@ -13,15 +13,19 @@ def load_documents(directory=None):
         raise FileNotFoundError(f"Directory {directory} not found")
 
     supported_extensions = {
-        ".pdf": PyPDFLoader,
-        ".txt": TextLoader,
-        ".md": UnstructuredMarkdownLoader,
+        ".pdf": "PyPDFLoader",
+        ".txt": "TextLoader",
+        ".md": "UnstructuredMarkdownLoader",
     }
 
     for file_path in Path(directory).rglob("*"):
         if file_path.suffix in supported_extensions:
             try:
-                loader_class = supported_extensions[file_path.suffix]
+                from langchain_community import document_loaders
+
+                loader_class = getattr(
+                    document_loaders, supported_extensions[file_path.suffix]
+                )
                 loader = loader_class(str(file_path))
                 docs = loader.load()
 
@@ -42,7 +46,9 @@ def load_documents(directory=None):
 
 
 def chunk_documents(documents):
-    """Découpe les documents en chunks avec RecursiveCharacterTextSplitter"""
+    """Découpe les documents et sauvegarde les chunks dans le fichier pickle configuré."""
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
+
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=CONFIG["chunk_size"],
         chunk_overlap=CONFIG["chunk_overlap"],
@@ -59,5 +65,14 @@ def chunk_documents(documents):
             chunk.page_content.encode()
         ).hexdigest()
 
+    pickle_path = Path(CONFIG["chunks_pickle_path"])
+    pickle_path.parent.mkdir(parents=True, exist_ok=True)
+    with pickle_path.open("wb") as file:
+        pickle.dump(chunks, file)
+
     print(f"✓ Created {len(chunks)} chunks")
+    print(f"✓ Chunks sauvegardés dans {pickle_path}")
     return chunks
+
+document = load_documents()
+chunk_documents(document)

@@ -5,7 +5,7 @@ from src.embeddings import get_embeddings
 from src.config import CONFIG
 
 def create_vector_store(chunks):
-    """Crée un index vectoriel avec ChromaDB et sauvegarde les chunks."""
+    """Crée un index vectoriel avec ChromaDB."""
     print("🔄 Generating embeddings and creating ChromaDB index...")
     embeddings = get_embeddings()
 
@@ -15,11 +15,6 @@ def create_vector_store(chunks):
         persist_directory=CONFIG["chroma_persist_directory"],
         collection_name=CONFIG["collection_name"],
     )
-
-    # Sauvegarder les chunks pour pouvoir recréer BM25 plus tard
-    with open(CONFIG["chunks_pickle_path"], "wb") as f:
-        pickle.dump(chunks, f)
-    print(f"✓ Chunks sauvegardés dans {CONFIG['chunks_pickle_path']}")
 
     print(f"✓ Vector store saved to {CONFIG['chroma_persist_directory']}")
     return vector_store

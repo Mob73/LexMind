@@ -17,7 +17,7 @@ CONFIG = {
     "top_k_final": 5,
 
     # LLM
-    "llm_model": "deepseek/deepseek-r1",  # ou "llama3.2" / "mistral"
+    "llm_model": "gemini-3.0-flash",
     "llm_temperature": 0.2,
     "llm_streaming": True,
 

@@ -1,7 +1,9 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()  # Charge les variables depuis .env
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")  # Charge les variables depuis .env
 
 CONFIG = {
     # Embeddings
@@ -12,20 +14,20 @@ CONFIG = {
     "chunk_size": 512,
     "chunk_overlap": 100,
     "chunk_separators": ["\n\n", "\n", "Article", "§", ".", " ", ""],
-    "chunks_pickle_path":"./chunks.pkl",
+    "chunks_pickle_path": str(BASE_DIR / "chunks.pkl"),
     # Recherche
     "hybrid_search_weights":(0.5, 0.5),
     "top_k_initial": 20,
     "top_k_final": 5,
     
     # LLM
-    "llm_model": "deepseek/deepseek-r1",  # ou "llama3.2" / "mistral"
+    "llm_model": "gemini-3.0-flash",
     "llm_temperature": 0.2,
     "llm_streaming": True,
     
     # Chemins
-    "docs_directory": "./documents/",
-    "chroma_persist_directory": "./chroma_db/",
+    "docs_directory": str(BASE_DIR / "documents"),
+    "chroma_persist_directory": str(BASE_DIR / "chroma_db"),
     "collection_name": "togolese_law_collection",
     
     # Agentic
@@ -33,6 +35,5 @@ CONFIG = {
     "max_retrieval_iterations": 3,
     }
 
-# Récupération des clés API
-import streamlit as st
-GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY")
+# Récupération de la clé API depuis .env
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
