@@ -1,24 +1,41 @@
 import streamlit as st
 import os
 from pathlib import Path
+CONFIG = {
+    # Embeddings
+    "embedding_model": "intfloat/multilingual-e5-small",  # Meilleur pour le français juridique
+    "embedding_device": "cpu",
+
+    # Découpage (adapté aux articles de loi)
+    "chunk_size": 512,
+    "chunk_overlap": 100,
+    "chunk_separators": ["\n\n", "\n", "Article", "§", ".", " ", ""],
+    "chunks_pickle_path":"./chunks.pkl",
+    # Recherche
+    "hybrid_search_weights":(0.5, 0.5),
+    "top_k_initial": 20,
+    "top_k_final": 5,
+
+    # LLM
+    "llm_model": "deepseek/deepseek-r1",  # ou "llama3.2" / "mistral"
+    "llm_temperature": 0.2,
+    "llm_streaming": True,
+
+    # Chemins
+    "docs_directory": "./documents/",
+    "chroma_persist_directory": "./chroma_db/",
+    "collection_name": "togolese_law_collection",
+
+    # Agentic
+    "enable_agentic_retrieval": True,
+    "max_retrieval_iterations": 3,
+    }
+
 
 # Tentative d'importation des modules backend
 try:
     from src.pipeline import initialize_pipeline, index_documents, query_pipeline
-    from src.config import CONFIG
-except ImportError:
-    # Mocks de secours si exécuté hors du projet principal
-    def initialize_pipeline():
-        return {"is_indexed": True}
-    def index_documents(pipeline):
-        pipeline["is_indexed"] = True
-        return pipeline
-    def query_pipeline(pipeline, prompt):
-        class MockDoc:
-            def __init__(self, filename):
-                self.metadata = {"filename": filename}
-        return f"Ceci est une réponse simulée à la question : **{prompt}**. Selon le Code Civil togolais, les dispositions applicables garantissent la sécurité juridique des parties.", [MockDoc("Code_Civil_Togo_Art12.pdf"), MockDoc("Journal_Officiel_2023.pdf")]
-
+    
 # ---------------------------------------------------------
 # CONFIGURATION DE LA PAGE
 # ---------------------------------------------------------
