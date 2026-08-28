@@ -96,11 +96,13 @@ def query_pipeline(pipeline_state, question):
     )
 
     chain = prompt | llm
-    answer = chain.invoke({
+    response = chain.invoke({
         "context": context,
         "question": question,
-        "chat_history": [],   # pour l'instant, pas d'historique
+        "chat_history": [],
     })
+    
+    answer = response.content
 
     print("\n" + "="*60)
     print("✅ Answer generated")
