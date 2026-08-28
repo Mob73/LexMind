@@ -138,7 +138,7 @@ def query_pipeline(pipeline_state, question):
     print("✅ Answer generated")
     print("="*60)
 
-    return answer, documents ---------------------------------------------------------
+    return answer, documents
 # CONFIGURATION DE LA PAGE
 # ---------------------------------------------------------
 st.set_page_config(
