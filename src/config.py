@@ -21,7 +21,7 @@ CONFIG = {
     "top_k_final": 5,
     
     # LLM
-    "llm_model": "gemini-3.0-flash",
+    "llm_model": "gemini-2.0-pro",
     "llm_temperature": 0.2,
     "llm_streaming": True,
     
