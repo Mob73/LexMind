@@ -3,10 +3,10 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain_openai import ChatOpenAI
 import os
-
+import streamlit as st
 def get_llm():
     llm = ChatOpenAI(
-        openai_api_key=os.getenv("GEMINI_API_KEY"),
+        openai_api_key=st.secrets.get("GEMINI_API_KEY"),
         openai_api_base="https://openrouter.ai/api/v1",
         model_name="deepseek/deepseek-r1",
         temperature=0.2
