@@ -35,5 +35,18 @@ CONFIG = {
     "max_retrieval_iterations": 3,
     }
 
-# Récupération de la clé API depuis .env
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+def get_gemini_api_key():
+    """Charge la clé depuis l'environnement local ou les secrets Streamlit."""
+    api_key = os.getenv("GEMINI_API_KEY")
+    if api_key:
+        return api_key
+
+    try:
+        import streamlit as st
+
+        return st.secrets.get("GEMINI_API_KEY")
+    except (FileNotFoundError, KeyError):
+        return None
+
+
+GEMINI_API_KEY = get_gemini_api_key()

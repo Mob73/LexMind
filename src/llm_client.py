@@ -3,6 +3,12 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 def create_llm():
+    if not GEMINI_API_KEY:
+        raise RuntimeError(
+            "GEMINI_API_KEY est absente. Configurez-la dans .env ou dans "
+            "les Secrets de Streamlit Cloud."
+        )
+
     return ChatGoogleGenerativeAI(
         model=CONFIG["llm_model"],
         google_api_key=GEMINI_API_KEY,
