@@ -2,7 +2,7 @@ from pathlib import Path
 import hashlib
 import pickle
 
-from config import CONFIG
+from src.config import CONFIG
 
 def load_documents(directory=None):
     """Charge tous les documents d'un répertoire"""
