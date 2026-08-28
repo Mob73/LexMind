@@ -59,10 +59,79 @@ def hybrid_retrieve(retriever, query):
             return []
 
         # --------------------------------------------------
-        # 1. RECHERCHE CHROMA BRUTE
+        # 1. ÉTAT RÉEL DE LA COLLECTION CHROMA
         # --------------------------------------------------
 
-        st.write("### 1️⃣ Recherche Chroma brute")
+        st.write("### 1️⃣ État réel de la collection Chroma")
+
+        try:
+            collection = vector_store._collection
+
+            st.write(
+                f"**Nombre d'éléments dans la collection : "
+                f"{collection.count()}**"
+            )
+
+            sample = collection.get(
+                limit=5,
+                include=["documents", "metadatas", "embeddings"]
+            )
+
+            sample_ids = sample.get("ids", [])
+            sample_documents = sample.get("documents", [])
+            sample_metadatas = sample.get("metadatas", [])
+            sample_embeddings = sample.get("embeddings", [])
+
+            st.write(
+                f"**IDs récupérés pour le test : "
+                f"{len(sample_ids)}**"
+            )
+
+            st.write(
+                f"**Embeddings récupérés pour le test : "
+                f"{len(sample_embeddings) if sample_embeddings else 0}**"
+            )
+
+            if sample_embeddings:
+                first_embedding = sample_embeddings[0]
+
+                st.write(
+                    f"**Dimension du premier embedding : "
+                    f"{len(first_embedding)}**"
+                )
+
+                st.write(
+                    f"**Premiers éléments du vecteur : 
+                    `{first_embedding[:5]}`"
+                )
+
+            for i in range(len(sample_documents)):
+                st.write(f"#### Exemple {i + 1}")
+
+                st.code(
+                    sample_documents[i][:500],
+                    language=None
+                )
+
+                if sample_metadatas:
+                    st.write(
+                        f"**Metadata :** "
+                        f"`{sample_metadatas[i]}`"
+                    )
+
+        except Exception as e:
+            st.error(
+                f"❌ Erreur inspection collection Chroma : "
+                f"`{type(e).__name__}: {e}`"
+            )
+
+            st.exception(e)
+
+        # --------------------------------------------------
+        # 2. RECHERCHE CHROMA BRUTE
+        # --------------------------------------------------
+
+        st.write("### 2️⃣ Recherche Chroma brute")
 
         raw_docs = vector_store.similarity_search(
             query,
