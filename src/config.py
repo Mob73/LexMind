@@ -21,7 +21,7 @@ CONFIG = {
     "top_k_final": 5,
     
     # LLM
-    "llm_model": "gemini-2.0-pro",
+    "llm_model": "gemini-3.6-pro",
     "llm_temperature": 0.2,
     "llm_streaming": True,
     
@@ -31,7 +31,7 @@ CONFIG = {
     "collection_name": "togolese_law_collection",
     
     # Agentic
-    "enable_agentic_retrieval": True,
+    "enable_agentic_retrieval": False,
     "max_retrieval_iterations": 3,
     }
 
