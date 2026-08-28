@@ -73,6 +73,3 @@ def chunk_documents(documents):
     print(f"✓ Created {len(chunks)} chunks")
     print(f"✓ Chunks sauvegardés dans {pickle_path}")
     return chunks
-
-document = load_documents()
-chunk_documents(document)
