@@ -34,4 +34,5 @@ CONFIG = {
     }
 
 # Récupération des clés API
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+import streamlit as st
+GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY")
