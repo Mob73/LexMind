@@ -34,15 +34,58 @@ def create_hybrid_retriever(chunks, vector_store):
 
 
 def hybrid_retrieve(retriever, query):
-    """Exécute la recherche hybride avec diagnostic Streamlit."""
+    """Exécute la recherche avec diagnostic Streamlit."""
     import streamlit as st
 
     try:
-        docs = retriever.invoke(query)
-
         st.info(
             f"🔎 Retriever utilisé : `{type(retriever).__name__}`"
         )
+
+        # Diagnostic du vector store
+        vector_store = getattr(retriever, "vectorstore", None)
+
+        if vector_store is not None:
+            st.write("### 🗄️ Diagnostic Chroma")
+
+            try:
+                data = vector_store.get()
+
+                ids = data.get("ids", [])
+                documents = data.get("documents", [])
+                metadatas = data.get("metadatas", [])
+
+                st.write(
+                    f"**Nombre total de documents dans Chroma : "
+                    f"{len(ids)}**"
+                )
+
+                if len(ids) > 0:
+                    st.write(
+                        f"**Premier ID :** `{ids[0]}`"
+                    )
+
+                    if documents:
+                        st.code(
+                            documents[0][:1000],
+                            language=None
+                        )
+
+                    if metadatas:
+                        st.write(
+                            f"**Première metadata :** "
+                            f"`{metadatas[0]}`"
+                        )
+
+            except Exception as e:
+                st.error(
+                    f"❌ Impossible d'inspecter Chroma : "
+                    f"`{type(e).__name__}: {e}`"
+                )
+                st.exception(e)
+
+        # Recherche normale
+        docs = retriever.invoke(query)
 
         st.info(
             f"📄 Nombre de documents récupérés : **{len(docs)}**"
