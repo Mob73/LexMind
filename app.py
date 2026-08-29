@@ -1,6 +1,6 @@
-import streamlit as st
 import os
 from pathlib import Path
+import streamlit as st
 
 CONFIG = {
     # Embeddings
@@ -48,7 +48,7 @@ from src.config import CONFIG
 def initialize_pipeline():
     """Initialise le pipeline en chargeant l'index existant si possible."""
     print("\n" + "=" * 60)
-    print("🚀 INITIALIZING RAG PIPELINE")
+    print("INITIALIZING RAG PIPELINE")
     print("=" * 60)
 
     llm = create_llm()
@@ -62,14 +62,14 @@ def initialize_pipeline():
         chunks = load_chunks()
 
         if chunks:
-            print("✅ Chunks trouvés, création du retriever hybride...")
+            print("Chunks trouvés, création du retriever hybride...")
             hybrid_retriever = create_hybrid_retriever(
                 chunks,
                 vector_store
             )
         else:
             print(
-                "⚠️ Chunks introuvables, utilisation du retriever "
+                "Chunks introuvables, utilisation du retriever "
                 "vectoriel uniquement."
             )
             hybrid_retriever = get_retriever_from_vector_store(
@@ -77,11 +77,11 @@ def initialize_pipeline():
             )
 
         is_indexed = True
-        print("✅ Index chargé avec succès.")
+        print("Index chargé avec succès.")
 
     else:
         print(
-            "⚠️ Aucun index existant trouvé. "
+            "Aucun index existant trouvé. "
             "Veuillez indexer des documents."
         )
 
@@ -97,7 +97,7 @@ def initialize_pipeline():
 def index_documents(pipeline_state):
     """Indexe les documents du dossier documents/ et met à jour le pipeline."""
     print("\n" + "=" * 60)
-    print("🔄 STARTING INDEXATION")
+    print("STARTING INDEXATION")
     print("=" * 60)
 
     docs = load_documents()
@@ -118,9 +118,9 @@ def index_documents(pipeline_state):
     pipeline_state["hybrid_retriever"] = hybrid_retriever
     pipeline_state["is_indexed"] = True
 
-    print("\n✅ Indexation terminée!")
-    print(f"   - {len(docs)} documents")
-    print(f"   - {len(chunks)} chunks")
+    print("\nIndexation terminée!")
+    print(f"    - {len(docs)} documents")
+    print(f"    - {len(chunks)} chunks")
     print("=" * 60)
 
     return pipeline_state
@@ -130,7 +130,7 @@ def query_pipeline(pipeline_state, question):
     """Interroge le pipeline et retourne (réponse, documents)."""
 
     print("\n" + "=" * 60)
-    print(f"❓ Question: {question}")
+    print(f"Question: {question}")
     print("=" * 60)
 
     llm = pipeline_state["llm"]
@@ -194,7 +194,7 @@ def query_pipeline(pipeline_state, question):
     )
 
     if not is_legal:
-        print("💬 Question non juridique → réponse directe")
+        print("Question non juridique -> réponse directe")
 
         response = llm.invoke(
             prompt.format_messages(
@@ -232,7 +232,7 @@ def query_pipeline(pipeline_state, question):
         )
 
         print(
-            f"📊 Context sufficient: {context_sufficient}"
+            f"Context sufficient: {context_sufficient}"
         )
 
     else:
@@ -242,7 +242,7 @@ def query_pipeline(pipeline_state, question):
         )
 
         print(
-            f"📊 Retrieved {len(documents)} documents"
+            f"Retrieved {len(documents)} documents"
         )
 
     context = "\n\n---\n\n".join(
@@ -255,7 +255,7 @@ def query_pipeline(pipeline_state, question):
         ]
     )
 
-    print("\n🤖 Generating answer...")
+    print("\nGenerating answer...")
 
     response = (
         prompt | llm
@@ -276,7 +276,7 @@ def query_pipeline(pipeline_state, question):
         )
 
     print("\n" + "=" * 60)
-    print("✅ Answer generated")
+    print("Answer generated")
     print("=" * 60)
 
     return answer, documents
@@ -296,185 +296,253 @@ def simple_query(pipeline_state, question):
 # ---------------------------------------------------------
 
 st.set_page_config(
-    page_title="LexMind • AI Juridique Togolais",
-    page_icon="⚖️",
+    page_title="LexMind - Intelligence Juridique Togolaise",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 
 # ---------------------------------------------------------
-# STYLES CSS
+# STYLES CSS (Design Cabinet d'Avocats / Élégant & Moderne)
 # ---------------------------------------------------------
 
 custom_css = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
-    --bg-gradient: linear-gradient(135deg, #0A1128 0%, #101F42 50%, #001F54 100%);
-    --accent-sky: #38BDF8;
-    --accent-sky-glow: rgba(56, 189, 248, 0.3);
-    --navy-card: rgba(15, 23, 42, 0.75);
-    --navy-border: rgba(56, 189, 248, 0.2);
-    --text-white: #F8FAFC;
-    --text-muted: #94A3B8;
+    --primary-navy: #0F172A;
+    --secondary-blue: #1E3A8A;
+    --accent-gold: #B45309;
+    --bg-light: #F8FAFC;
+    --card-white: #FFFFFF;
+    --border-subtle: #E2E8F0;
+    --text-dark: #0F172A;
+    --text-muted: #475569;
 }
 
+/* Cache complètement la barre latérale */
+[data-testid="stSidebar"], section[data-testid="stSidebar"], [data-testid="collapsedControl"] {
+    display: none !important;
+}
+
+/* Base global */
 .stApp {
-    background: var(--bg-gradient);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    color: var(--text-white);
+    background-color: var(--bg-light);
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-dark);
 }
 
-h1, h2, h3, .brand-title {
-    font-family: 'Cinzel', serif !important;
+.main .block-container {
+    max-width: 1100px;
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+}
+
+h1, h2, h3, h4, .serif-font {
+    font-family: 'Merriweather', Georgia, serif !important;
+    color: var(--primary-navy);
+}
+
+/* Header & Navbar minimaliste */
+.site-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 0;
+    border-bottom: 2px solid var(--border-subtle);
+    margin-bottom: 2.5rem;
+}
+
+.site-logo {
+    font-family: 'Merriweather', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
     letter-spacing: 0.5px;
+    color: var(--primary-navy);
+    text-transform: uppercase;
 }
 
-.hero-header {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--navy-border);
-    border-radius: 20px;
-    padding: 2.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    position: relative;
-    overflow: hidden;
+.site-logo span {
+    color: var(--accent-gold);
 }
 
-.hero-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, var(--accent-sky-glow) 0%, transparent 60%);
-    pointer-events: none;
+.site-tagline {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Hero Section */
+.hero-container {
+    background: var(--card-white);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 3rem 2.5rem;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+    margin-bottom: 3rem;
+    text-align: center;
 }
 
 .hero-title {
-    font-size: 3.2rem;
-    font-weight: 900;
-    background: linear-gradient(90deg, #FFFFFF 30%, var(--accent-sky) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 0.2rem;
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+    color: var(--primary-navy);
 }
 
 .hero-subtitle {
-    font-size: 1.25rem;
-    color: var(--accent-sky);
-    font-weight: 500;
-    margin-bottom: 0.8rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.hero-desc {
+    font-size: 1.15rem;
     color: var(--text-muted);
-    font-size: 0.95rem;
-    max-width: 650px;
-    margin: 0;
+    max-width: 780px;
+    margin: 0 auto 1.5rem auto;
+    line-height: 1.6;
 }
 
-[data-testid="stSidebar"] {
-    background-color: rgba(10, 17, 40, 0.9) !important;
-    border-right: 1px solid var(--navy-border);
+/* Grille d'explications / Fonctionnalités */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
 }
 
-.sidebar-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 1.2rem;
+.feature-card {
+    background: var(--card-white);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 1.8rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.feature-number {
+    font-family: 'Merriweather', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-gold);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.feature-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--primary-navy);
+    margin-bottom: 0.6rem;
+}
+
+.feature-desc {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+}
+
+/* Section de recherche / Chat */
+.chat-section-header {
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 2rem;
     margin-bottom: 1.5rem;
 }
 
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.9rem;
-    border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 600;
+.chat-section-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
 }
 
-.status-active {
-    background: rgba(16, 185, 129, 0.15);
-    color: #34D399;
-    border: 1px solid rgba(52, 211, 153, 0.3);
-}
-
-.status-inactive {
-    background: rgba(245, 158, 11, 0.15);
-    color: #FBBF24;
-    border: 1px solid rgba(251, 191, 36, 0.3);
-}
-
-.stChatInputContainer {
-    padding-bottom: 1rem;
-}
-
-.stChatInput input {
-    background-color: rgba(15, 23, 42, 0.8) !important;
-    border: 1px solid var(--navy-border) !important;
-    color: white !important;
-    border-radius: 14px !important;
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
-}
-
-.stChatInput input:focus {
-    border-color: var(--accent-sky) !important;
-    box-shadow: 0 0 12px var(--accent-sky-glow) !important;
-}
-
+/* Customisation des messages de chat Streamlit */
 [data-testid="stChatMessage"] {
-    background-color: rgba(15, 23, 42, 0.6) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-radius: 16px !important;
-    padding: 1.2rem !important;
+    background-color: var(--card-white) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 10px !important;
+    padding: 1.25rem !important;
     margin-bottom: 1rem !important;
-    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+    color: var(--text-dark) !important;
 }
 
 [data-testid="stChatMessage"]:nth-child(even) {
-    background-color: rgba(56, 189, 248, 0.08) !important;
-    border: 1px solid rgba(56, 189, 248, 0.2) !important;
+    background-color: #F1F5F9 !important;
+    border-color: #CBD5E1 !important;
+}
+
+.stChatInput input {
+    background-color: var(--card-white) !important;
+    border: 1px solid #CBD5E1 !important;
+    color: var(--text-dark) !important;
+    border-radius: 8px !important;
+    padding: 0.8rem 1rem !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 0.98rem !important;
+}
+
+.stChatInput input:focus {
+    border-color: var(--secondary-blue) !important;
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1) !important;
 }
 
 .stButton>button {
-    background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%) !important;
-    color: white !important;
+    background-color: var(--primary-navy) !important;
+    color: #FFFFFF !important;
     border: none !important;
-    border-radius: 10px !important;
-    font-weight: 600 !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3) !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 1.2rem !important;
+    transition: background-color 0.2s ease !important;
 }
 
 .stButton>button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5) !important;
+    background-color: var(--secondary-blue) !important;
+    color: #FFFFFF !important;
 }
 
+/* Styles des expandable & badges status */
 .streamlit-expanderHeader {
-    background-color: rgba(255, 255, 255, 0.02) !important;
-    border-radius: 8px !important;
-    color: var(--accent-sky) !important;
+    background-color: var(--card-white) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 6px !important;
+    color: var(--primary-navy) !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+}
+
+.status-indicator {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.status-ok {
+    background-color: #DEF7EC;
+    color: #03543F;
+}
+
+.status-warn {
+    background-color: #FDF6B2;
+    color: #723B13;
+}
+
+footer {
+    display: none !important;
 }
 </style>
 """
 
-st.markdown(
-    custom_css,
-    unsafe_allow_html=True
-)
+st.markdown(custom_css, unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------
@@ -485,156 +553,18 @@ st.markdown(
 def get_pipeline():
     return initialize_pipeline()
 
-
 pipeline = get_pipeline()
 
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 🔎 Diagnostic RAG")
-
-if st.sidebar.button("Tester les retrievers"):
-    test_query = st.sidebar.text_input(
-        "Question de test",
-        value="Quel est le droit de vote au Togo ?"
-    )
-
-    retriever = pipeline.get("hybrid_retriever")
-
-    if retriever is None:
-        st.sidebar.error("Retriever non disponible.")
-    else:
-        st.subheader("🔎 Diagnostic des retrievers")
-
-        if hasattr(retriever, "retrievers"):
-            for i, sub_retriever in enumerate(retriever.retrievers):
-                try:
-                    docs = sub_retriever.invoke(test_query)
-    
-                    st.markdown(
-                        f"### Retriever {i + 1} — "
-                        f"`{type(sub_retriever).__name__}`"
-                    )
-    
-                    for j, doc in enumerate(docs[:5]):
-                        st.markdown(
-                            f"**Document {j + 1}**"
-                        )
-    
-                        st.write(
-                            "Source :",
-                            doc.metadata.get("filename", "Inconnu")
-                        )
-    
-                        st.code(
-                            doc.page_content[:500]
-                        )
-    
-                except Exception as e:
-                    st.error(
-                        f"Erreur avec le retriever {i + 1} : {e}"
-                    )
-# ---------------------------------------------------------
-# BARRE LATÉRALE
-# ---------------------------------------------------------
-
-with st.sidebar:
-
-    st.markdown(
-        "<h2 style='font-size: 1.6rem; margin-bottom: 0.5rem;'>⚖️ LEXMIND</h2>",
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        "<p style='color: var(--text-muted); font-size: 0.85rem;'>"
-        "Plateforme IA d'intelligence juridique"
-        "</p>",
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("---")
-
-    is_indexed = pipeline.get(
-        "is_indexed",
-        False
-    )
-
-    status_class = (
-        "status-active"
-        if is_indexed
-        else "status-inactive"
-    )
-
-    status_text = (
-        "● Base Indexée & Prête"
-        if is_indexed
-        else "▲ Indexation Requise"
-    )
-
-    st.markdown(
-        f"""
-        <div class="sidebar-card">
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem;">
-                Statut du système
-            </div>
-            <div class="status-badge {status_class}">
-                {status_text}
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("### ⚙️ Administration")
-
-    if st.button(
-        "🔄 Recharger/Indexer la Base",
-        use_container_width=True,
-    ):
-        with st.spinner(
-            "Indexation des textes de loi togolais..."
-        ):
-            pipeline = index_documents(pipeline)
-            st.success(
-                "Base de connaissances mise à jour !"
-            )
-            st.rerun()
-
-    st.markdown("---")
-
-    st.markdown("### 📜 Domaines Couverts")
-
-    st.markdown(
-        """
-        - **Code Civil & Droit de la Famille**
-        - **Code du Travail**
-        - **Droit des Affaires & OHADA**
-        - **Code Pénal Togolais**
-        """
-    )
-
-    st.markdown("---")
-
-    st.caption(
-        "République Togolaise • Justice - Travail - Patrie"
-    )
-
 
 # ---------------------------------------------------------
-# BANNIÈRE PRINCIPALE
+# BARRE D'EN-TÊTE
 # ---------------------------------------------------------
 
 st.markdown(
     """
-    <div class="hero-header">
-        <div class="hero-title">LEXMIND</div>
-        <div class="hero-subtitle">
-            <span>⚖️</span>
-            Assistant d'Intelligence Juridique Togolais
-        </div>
-        <p class="hero-desc">
-            Explorez la jurisprudence, les codes officiels et les textes
-            fondamentaux de la République Togolaise avec une précision
-            algorithmique de pointe.
-        </p>
+    <div class="site-navbar">
+        <div class="site-logo">LEXMIND <span>JURIDIQUE</span></div>
+        <div class="site-tagline">République Togolaise • Base Légale & Jurisprudence</div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -642,50 +572,118 @@ st.markdown(
 
 
 # ---------------------------------------------------------
-# CHAT ET INTERACTION
+# BANNIÈRE D'ACCUEIL (HERO)
 # ---------------------------------------------------------
+
+st.markdown(
+    """
+    <div class="hero-container">
+        <div class="hero-title">Plateforme d'Analyse Juridique et d'Information Légale Togolaise</div>
+        <div class="hero-subtitle">
+            Accédez aux codes officiels, lois, décrets et textes fondamentaux de la République Togolaise. 
+            Obtenez des réponses structurées et motivées en s'appuyant directement sur des sources documentaires certifiées.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+# ---------------------------------------------------------
+# SECTION D'EXPLICATIONS (CARTE DE PRÉSENTATION)
+# ---------------------------------------------------------
+
+st.markdown(
+    """
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-number">MODULE 01</div>
+            <div class="feature-title">Recherche Textuelle Hybride</div>
+            <div class="feature-desc">
+                Exploration simultanée par recherche sémantique et par mots-clés exacts pour identifier les articles de loi et décrets applicables à votre situation.
+            </div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-number">MODULE 02</div>
+            <div class="feature-title">Citations des Sources Officielles</div>
+            <div class="feature-desc">
+                Chaque réponse est accompagnée de la liste des textes de droit togolais (Code du travail, Code civil, Code pénal, Traités OHADA) ayant servi de référence.
+            </div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-number">MODULE 03</div>
+            <div class="feature-title">Analyse Structurée & Synthèse</div>
+            <div class="feature-desc">
+                Présentation synthétique des obligations, sanctions, procédures et droits prévus par la réglementation en vigueur au Togo.
+            </div>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+# ---------------------------------------------------------
+# GESTION ADMINISTRATIVE DE LA BASE (ACCORDEON DISCRET)
+# ---------------------------------------------------------
+
+is_indexed = pipeline.get("is_indexed", False)
+status_class = "status-ok" if is_indexed else "status-warn"
+status_label = "Base de données indexée" if is_indexed else "Indexation requise"
+
+with st.expander("Administration du système et indexation des textes"):
+    col_stat, col_btn = st.columns([3, 1])
+    with col_stat:
+        st.markdown(f"**Statut actuel :** <span class='status-indicator {status_class}'>{status_label}</span>", unsafe_allow_html=True)
+        st.markdown("La base de connaissances comprend le Code du Travail, le Code Pénal, le Code de la Famille et les actes uniformes OHADA.")
+    with col_btn:
+        if st.button("Actualiser la base", use_container_width=True):
+            with st.spinner("Indexation des documents juridiques togolais en cours..."):
+                pipeline = index_documents(pipeline)
+                st.success("La base de connaissances a été mise à jour.")
+                st.rerun()
+
+
+# ---------------------------------------------------------
+# SECTION CHAT ET INTERACTION JURIDIQUE
+# ---------------------------------------------------------
+
+st.markdown(
+    """
+    <div class="chat-section-header">
+        <div class="chat-section-title">Consultation et Requête Juridique</div>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+            Saisissez votre question ci-dessous (ex. : Quels sont les motifs de licenciement légitimes selon le Code du travail togolais ?).
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 
+# Affichage des messages enregistrés dans la session
 for msg in st.session_state.messages:
-
-    avatar = (
-        "👤"
-        if msg["role"] == "user"
-        else "⚖️"
-    )
-
-    with st.chat_message(
-        msg["role"],
-        avatar=avatar
-    ):
-
-        st.markdown(
-            msg["content"]
-        )
+    sender_name = "Utilisateur" if msg["role"] == "user" else "LexMind Juridique"
+    
+    with st.chat_message(msg["role"]):
+        st.markdown(f"**{sender_name}**")
+        st.markdown(msg["content"])
 
         if (
             msg["role"] == "assistant"
             and "sources" in msg
             and msg["sources"]
         ):
-
-            with st.expander(
-                "📚 Sources Juridiques Examen"
-            ):
-
+            with st.expander("Sources légales consultées"):
                 for src in msg["sources"]:
-                    st.markdown(
-                        f"- `{src}`"
-                    )
+                    st.markdown(f"- **Document :** `{src}`")
 
 
-if prompt := st.chat_input(
-    "Posez votre question juridique "
-    "(ex: Quels sont les préavis de licenciement au Togo ?)..."
-):
+# Saisie de la question
+if prompt := st.chat_input("Saisissez votre question relative au droit togolais..."):
 
     st.session_state.messages.append(
         {
@@ -694,20 +692,14 @@ if prompt := st.chat_input(
         }
     )
 
-    with st.chat_message(
-        "user",
-        avatar="👤"
-    ):
+    with st.chat_message("user"):
+        st.markdown("**Utilisateur**")
         st.markdown(prompt)
 
-    with st.chat_message(
-        "assistant",
-        avatar="⚖️"
-    ):
-
-        with st.spinner(
-            "Analyse des textes de loi & rédaction de la réponse..."
-        ):
+    with st.chat_message("assistant"):
+        st.markdown("**LexMind Juridique**")
+        
+        with st.spinner("Consultation des textes de loi et rédaction du rapport juridique..."):
 
             try:
 
@@ -731,15 +723,9 @@ if prompt := st.chat_input(
                 st.markdown(answer)
 
                 if sources:
-
-                    with st.expander(
-                        "📚 Sources Juridiques Examen"
-                    ):
-
+                    with st.expander("Sources légales consultées"):
                         for src in sources:
-                            st.markdown(
-                                f"- `{src}`"
-                            )
+                            st.markdown(f"- **Document :** `{src}`")
 
                 st.session_state.messages.append(
                     {
