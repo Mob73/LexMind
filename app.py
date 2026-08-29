@@ -589,7 +589,7 @@ pipeline = get_pipeline()
 st.markdown(
     """
     <div class="site-navbar">
-        <div class="site-logo">SENUNYA <span>JURIDIQUE</span></div>
+        <div class="site-logo">SENUNYA <span></span></div>
         <div class="site-tagline">République Togolaise • Base Légale & Jurisprudence</div>
     </div>
     """,
