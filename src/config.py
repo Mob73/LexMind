@@ -28,7 +28,7 @@ CONFIG = {
     # Chemins
     "docs_directory": str(BASE_DIR / "documents"),
     "chroma_persist_directory": str(BASE_DIR / "chroma_db"),
-    "collection_name": "togolese_law_collection",
+    "collection_name": "lexmind",
     
     # Agentic
     "enable_agentic_retrieval": False,
