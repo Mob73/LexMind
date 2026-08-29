@@ -624,24 +624,11 @@ st.markdown(
 
 
 # ---------------------------------------------------------
-# GESTION ADMINISTRATIVE DE LA BASE (ACCORDEON DISCRET)
+# AVATARS PERSONNALISÉS (ICÔNES UTILISATEUR ET IA Sparkles)
 # ---------------------------------------------------------
 
-is_indexed = pipeline.get("is_indexed", False)
-status_class = "status-ok" if is_indexed else "status-warn"
-status_label = "Base de données indexée" if is_indexed else "Indexation requise"
-
-with st.expander("Administration du système et indexation des textes"):
-    col_stat, col_btn = st.columns([3, 1])
-    with col_stat:
-        st.markdown(f"**Statut actuel :** <span class='status-indicator {status_class}'>{status_label}</span>", unsafe_allow_html=True)
-        st.markdown("La base de connaissances comprend le Code du Travail, le Code Pénal, le Code de la Famille et les actes uniformes OHADA.")
-    with col_btn:
-        if st.button("Actualiser la base", use_container_width=True):
-            with st.spinner("Indexation des documents juridiques togolais en cours..."):
-                pipeline = index_documents(pipeline)
-                st.success("La base de connaissances a été mise à jour.")
-                st.rerun()
+USER_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%2364748B'><circle cx='50' cy='30' r='22'/><path d='M10 92 C10 60, 30 52, 50 52 C70 52, 90 60, 90 92 Z'/></svg>"
+AI_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%230F172A'><path d='M38 10 C38 28, 22 44, 4 44 C22 44, 38 60, 38 78 C38 60, 54 44, 72 44 C54 44, 38 28, 38 10 Z'/><path d='M78 6 C78 16, 68 26, 58 26 C68 26, 78 36, 78 46 C78 36, 88 26, 98 26 C88 26, 78 16, 78 6 Z'/></svg>"
 
 
 # ---------------------------------------------------------
@@ -664,11 +651,12 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 
-# Affichage des messages enregistrés dans la session
+# Affichage des messages enregistrés dans la session avec avatars
 for msg in st.session_state.messages:
+    avatar_icon = USER_AVATAR if msg["role"] == "user" else AI_AVATAR
     sender_name = "Utilisateur" if msg["role"] == "user" else "LexMind Juridique"
     
-    with st.chat_message(msg["role"]):
+    with st.chat_message(msg["role"], avatar=avatar_icon):
         st.markdown(f"**{sender_name}**")
         st.markdown(msg["content"])
 
@@ -692,11 +680,11 @@ if prompt := st.chat_input("Saisissez votre question relative au droit togolais.
         }
     )
 
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown("**Utilisateur**")
         st.markdown(prompt)
 
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar=AI_AVATAR):
         st.markdown("**LexMind Juridique**")
         
         with st.spinner("Consultation des textes de loi et rédaction du rapport juridique..."):
