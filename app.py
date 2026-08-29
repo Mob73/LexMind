@@ -295,7 +295,7 @@ def simple_query(pipeline_state, question):
 # CONFIGURATION DE LA PAGE
 # ---------------------------------------------------------
 
-st.set_page_config(
+st.set_page_config( 
     page_title="SeNunya - Intelligence Juridique Togolaise",
     layout="wide",
     initial_sidebar_state="collapsed",
