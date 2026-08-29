@@ -26,7 +26,7 @@ CONFIG = {
     # Chemins
     "docs_directory": "./documents/",
     "chroma_persist_directory": "./chroma_db/",
-    "collection_name": "lexmind",
+    "collection_name": "senunya",
 
     # Agentic
     "enable_agentic_retrieval": False,
@@ -296,7 +296,7 @@ def simple_query(pipeline_state, question):
 # ---------------------------------------------------------
 
 st.set_page_config(
-    page_title="LexMind - Intelligence Juridique Togolaise",
+    page_title="SeNunya - Intelligence Juridique Togolaise",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -310,7 +310,9 @@ custom_css = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
+/* Verrouillage strict du mode clair */
 :root {
+    color-scheme: light !important;
     --primary-navy: #0F172A;
     --secondary-blue: #1E3A8A;
     --accent-gold: #B45309;
@@ -319,6 +321,30 @@ custom_css = """
     --border-subtle: #E2E8F0;
     --text-dark: #0F172A;
     --text-muted: #475569;
+}
+
+/* Neutralisation du Dark Mode du système et force du thème clair */
+html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"], [data-testid="stMain"], [data-testid="stBottom"], [data-testid="stToolbar"] {
+    background-color: #F8FAFC !important;
+    color: #0F172A !important;
+    color-scheme: light !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    html, body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"], [data-testid="stMain"], [data-testid="stBottom"], [data-testid="stToolbar"] {
+        background-color: #F8FAFC !important;
+        color: #0F172A !important;
+    }
+    
+    [data-testid="stChatMessage"] {
+        background-color: #FFFFFF !important;
+        color: #0F172A !important;
+    }
+    
+    .stChatInput textarea, .stChatInput input {
+        background-color: #FFFFFF !important;
+        color: #0F172A !important;
+    }
 }
 
 /* Cache complètement la barre latérale */
@@ -563,7 +589,7 @@ pipeline = get_pipeline()
 st.markdown(
     """
     <div class="site-navbar">
-        <div class="site-logo">LEXMIND <span>JURIDIQUE</span></div>
+        <div class="site-logo">SENUNYA <span>JURIDIQUE</span></div>
         <div class="site-tagline">République Togolaise • Base Légale & Jurisprudence</div>
     </div>
     """,
@@ -654,7 +680,7 @@ if "messages" not in st.session_state:
 # Affichage des messages enregistrés dans la session avec avatars
 for msg in st.session_state.messages:
     avatar_icon = USER_AVATAR if msg["role"] == "user" else AI_AVATAR
-    sender_name = "Utilisateur" if msg["role"] == "user" else "LexMind Juridique"
+    sender_name = "Utilisateur" if msg["role"] == "user" else "SeNunya Juridique"
     
     with st.chat_message(msg["role"], avatar=avatar_icon):
         st.markdown(f"**{sender_name}**")
@@ -685,7 +711,7 @@ if prompt := st.chat_input("Saisissez votre question relative au droit togolais.
         st.markdown(prompt)
 
     with st.chat_message("assistant", avatar=AI_AVATAR):
-        st.markdown("**LexMind Juridique**")
+        st.markdown("**SeNunya Juridique**")
         
         with st.spinner("Consultation des textes de loi et rédaction du rapport juridique..."):
 
