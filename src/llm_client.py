@@ -6,7 +6,7 @@ def create_llm():
 
     return ChatGoogleGenerativeAI(
         model=CONFIG["llm_model"],
-        google_api_key="AQ.Ab8RN6KEOjAGdNFCtFz4fmNAppYBx8Njih9JnJbYKykT6L48NQ",
+        google_api_key=GEMINI_API_KEY,
         temperature=CONFIG["llm_temperature"],
     )
 
