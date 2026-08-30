@@ -9,16 +9,17 @@ from src.config import CONFIG
 def get_retriever_from_vector_store(vector_store, search_kwargs=None):
     """Retourne un retriever vectoriel simple."""
     if search_kwargs is None:
-        search_kwargs = {"k": CONFIG["top_k_initial"]}
+        search_kwargs = {
+            "k": CONFIG["top_k_initial"]
+        }
 
     return vector_store.as_retriever(
         search_kwargs=search_kwargs
     )
 
 
-def create_hybrid_retriever(chunks, vector_store):
-    """Crée un retriever hybride BM25 + vectoriel."""
-
+def _convert_chunks_to_documents(chunks):
+    """Convertit les chunks en objets LangChain Document."""
     documents = []
 
     for chunk in chunks:
@@ -47,12 +48,21 @@ def create_hybrid_retriever(chunks, vector_store):
                 )
 
         elif isinstance(chunk, str):
-            documents.append(
-                Document(
-                    page_content=chunk,
-                    metadata={}
+            if chunk.strip():
+                documents.append(
+                    Document(
+                        page_content=chunk,
+                        metadata={}
+                    )
                 )
-            )
+
+    return documents
+
+
+def create_hybrid_retriever(chunks, vector_store):
+    """Crée un retriever hybride BM25 + recherche vectorielle."""
+
+    documents = _convert_chunks_to_documents(chunks)
 
     if not documents:
         raise ValueError(
@@ -72,9 +82,9 @@ def create_hybrid_retriever(chunks, vector_store):
     return EnsembleRetriever(
         retrievers=[
             bm25_retriever,
-            vector_retriever,
+            vector_retriever
         ],
-        weights=CONFIG["hybrid_search_weights"],
+        weights=CONFIG["hybrid_search_weights"]
     )
 
 
@@ -135,14 +145,16 @@ Question :
                 and block.get("type") == "text"
             )
 
-        return response_text.strip().upper() == "SUFFICIENT"
+        response_text = response_text.strip().upper()
+
+        return response_text == "SUFFICIENT"
 
     except Exception:
         return False
 
 
 def refine_query(llm, original_query, retrieved_docs):
-    """Reformule la requête pour une meilleure recherche."""
+    """Reformule la requête pour améliorer la recherche."""
 
     if not retrieved_docs:
         return original_query
