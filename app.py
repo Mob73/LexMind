@@ -704,30 +704,30 @@ if prompt := st.chat_input("Saisissez votre question relative au droit togolais.
                 st.markdown(answer)
                 st.session_state["last_answer"] = answer
 
-            if st.button("🌍 Traduire en Ewe"):
-                with st.spinner("Traduction en Ewe..."):
-                    try:
-                        translation_prompt = f"""
-            Traduis fidèlement en Ewe le texte juridique suivant.
-            
-            Consignes :
-            - Ne résume pas.
-            - Ne supprime aucune information.
-            - Ne modifie pas le sens juridique.
-            - Conserve les numéros d'articles et les références aux lois.
-            - Retourne uniquement la traduction en Ewe.
-            
-            Texte à traduire :
-            {st.session_state["last_answer"]}
-            """
-            
-                        translation = pipeline["llm"].invoke(translation_prompt)
-            
-                        st.markdown("### 🌍 Traduction en Ewe")
-                        st.markdown(translation.content)
-            
-                    except Exception as e:
-                        st.error(f"Erreur lors de la traduction : {e}")
+                if st.button("🌍 Traduire en Ewe"):
+                    with st.spinner("Traduction en Ewe..."):
+                        try:
+                            translation_prompt = f"""
+                Traduis fidèlement en Ewe le texte juridique suivant.
+                
+                Consignes :
+                - Ne résume pas.
+                - Ne supprime aucune information.
+                - Ne modifie pas le sens juridique.
+                - Conserve les numéros d'articles et les références aux lois.
+                - Retourne uniquement la traduction en Ewe.
+                
+                Texte à traduire :
+                {st.session_state["last_answer"]}
+                """
+                
+                            translation = pipeline["llm"].invoke(translation_prompt)
+                
+                            st.markdown("### 🌍 Traduction en Ewe")
+                            st.markdown(translation.content)
+                
+                        except Exception as e:
+                            st.error(f"Erreur lors de la traduction : {e}")
 
                 if sources:
                     with st.expander("Sources légales consultées"):
