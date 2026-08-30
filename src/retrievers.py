@@ -1,4 +1,3 @@
-```python
 from langchain_classic.retrievers import EnsembleRetriever
 from langchain_community.retrievers import BM25Retriever
 from langchain_core.prompts import ChatPromptTemplate
@@ -215,4 +214,3 @@ def agentic_retrieve(llm, hybrid_retriever, query):
         all_documents[:CONFIG["top_k_final"]],
         False
     )
-```
