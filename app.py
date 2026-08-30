@@ -1,37 +1,7 @@
 import os
 from pathlib import Path
 import streamlit as st
-
-CONFIG = {
-    # Embeddings
-    "embedding_model": "intfloat/multilingual-e5-small",
-    "embedding_device": "cpu",
-
-    # Découpage
-    "chunk_size": 512,
-    "chunk_overlap": 100,
-    "chunk_separators": ["\n\n", "\n", "Article", "§", ".", " ", ""],
-    "chunks_pickle_path": "./chunks.pkl",
-
-    # Recherche
-    "hybrid_search_weights": (0.5, 0.5),
-    "top_k_initial": 20,
-    "top_k_final": 5,
-
-    # LLM
-    "llm_model": "gemini-3.0-flash",
-    "llm_temperature": 0.2,
-    "llm_streaming": True,
-
-    # Chemins
-    "docs_directory": "./documents/",
-    "chroma_persist_directory": "./chroma_db/",
-    "collection_name": "senunya",
-
-    # Agentic
-    "enable_agentic_retrieval": False,
-    "max_retrieval_iterations": 3,
-}
+from src.config import CONFIG
 
 from src.document_loader import load_documents, chunk_documents
 from src.vector_store import create_vector_store, load_vector_store, load_chunks
