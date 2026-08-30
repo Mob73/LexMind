@@ -1,0 +1,12 @@
+streamlit
+langchain
+langchain-core
+langchain-community
+langchain-classic
+langchain-chroma
+langchain-huggingface
+langchain-google-genai
+chromadb
+sentence-transformers
+rank-bm25
+google-generativeai

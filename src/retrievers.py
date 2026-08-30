@@ -1,5 +1,6 @@
 from langchain_classic.retrievers import EnsembleRetriever
 from langchain_community.retrievers import BM25Retriever
+from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 
 from src.config import CONFIG
@@ -8,9 +9,7 @@ from src.config import CONFIG
 def get_retriever_from_vector_store(vector_store, search_kwargs=None):
     """Retourne un retriever vectoriel simple."""
     if search_kwargs is None:
-        search_kwargs = {
-            "k": CONFIG["top_k_initial"]
-        }
+        search_kwargs = {"k": CONFIG["top_k_initial"]}
 
     return vector_store.as_retriever(
         search_kwargs=search_kwargs
@@ -19,37 +18,69 @@ def get_retriever_from_vector_store(vector_store, search_kwargs=None):
 
 def create_hybrid_retriever(chunks, vector_store):
     """Crée un retriever hybride BM25 + vectoriel."""
-    try:
-        bm25_retriever = BM25Retriever.from_documents(chunks)
-        bm25_retriever.k = CONFIG["top_k_initial"]
 
-        vector_retriever = get_retriever_from_vector_store(
-            vector_store
+    documents = []
+
+    for chunk in chunks:
+        if isinstance(chunk, Document):
+            documents.append(chunk)
+
+        elif isinstance(chunk, dict):
+            text = (
+                chunk.get("page_content")
+                or chunk.get("text")
+                or chunk.get("content")
+                or ""
+            )
+
+            metadata = chunk.get("metadata", {})
+
+            if not isinstance(metadata, dict):
+                metadata = {}
+
+            if text:
+                documents.append(
+                    Document(
+                        page_content=str(text),
+                        metadata=metadata
+                    )
+                )
+
+        elif isinstance(chunk, str):
+            documents.append(
+                Document(
+                    page_content=chunk,
+                    metadata={}
+                )
+            )
+
+    if not documents:
+        raise ValueError(
+            "Aucun document valide disponible pour BM25."
         )
 
-        ensemble_retriever = EnsembleRetriever(
-            retrievers=[
-                bm25_retriever,
-                vector_retriever,
-            ],
-            weights=CONFIG["hybrid_search_weights"],
-        )
+    bm25_retriever = BM25Retriever.from_documents(
+        documents
+    )
 
-        return ensemble_retriever
+    bm25_retriever.k = CONFIG["top_k_initial"]
 
-    except Exception:
-        return get_retriever_from_vector_store(
-            vector_store
-        )
+    vector_retriever = get_retriever_from_vector_store(
+        vector_store
+    )
+
+    return EnsembleRetriever(
+        retrievers=[
+            bm25_retriever,
+            vector_retriever,
+        ],
+        weights=CONFIG["hybrid_search_weights"],
+    )
 
 
 def hybrid_retrieve(retriever, query):
     """Exécute simplement la recherche hybride."""
-    try:
-        return retriever.invoke(query)
-
-    except Exception:
-        return []
+    return retriever.invoke(query)
 
 
 def evaluate_context_sufficiency(llm, query, documents):
@@ -68,8 +99,7 @@ def evaluate_context_sufficiency(llm, query, documents):
             "system",
             """Vous êtes un évaluateur de contexte juridique.
 
-Déterminez si le contexte fourni permet réellement de répondre
-à la question.
+Déterminez si le contexte fourni permet réellement de répondre à la question.
 
 Répondez UNIQUEMENT par une des trois valeurs suivantes :
 
@@ -105,16 +135,14 @@ Question :
                 and block.get("type") == "text"
             )
 
-        response_text = response_text.strip().upper()
-
-        return response_text == "SUFFICIENT"
+        return response_text.strip().upper() == "SUFFICIENT"
 
     except Exception:
         return False
 
 
 def refine_query(llm, original_query, retrieved_docs):
-    """Reformule la requête pour améliorer la recherche."""
+    """Reformule la requête pour une meilleure recherche."""
 
     if not retrieved_docs:
         return original_query
@@ -124,8 +152,8 @@ def refine_query(llm, original_query, retrieved_docs):
             "system",
             """Vous êtes un expert en recherche d'information juridique.
 
-Reformulez la question afin d'améliorer la recherche dans une base
-de documents juridiques togolais.
+Reformulez la question afin d'améliorer la recherche dans une base de
+documents juridiques togolais.
 
 Retournez uniquement la nouvelle requête de recherche."""
         ),
