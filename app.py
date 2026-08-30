@@ -704,39 +704,30 @@ if prompt := st.chat_input("Saisissez votre question relative au droit togolais.
                 st.markdown(answer)
                 st.session_state["last_answer"] = answer
 
-                if st.button("🌍 Traduire en Ewe"):
-                    with st.spinner("Traduction en Ewe..."):
-                        try:
-                            from google import genai
-                            import os
-                
-                            client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-                
-                            response = client.models.generate_content(
-                                model="gemini-3.0-flash",
-                                contents=f"""
-                Traduis le texte juridique suivant en Ewe (langue éwé du Togo).
-                
-                Conserve fidèlement :
-                - le sens juridique ;
-                - les articles et numéros ;
-                - les références aux lois ;
-                - la structure du texte.
-                
-                Ne résume pas et n'ajoute aucune information.
-                
-                Texte à traduire :
-                {st.session_state["last_answer"]}
-                """
-                            )
-                
-                            ewe_translation = response.text
-                
-                            st.markdown("### 🌍 Traduction en Ewe")
-                            st.markdown(ewe_translation)
-                
-                        except Exception as e:
-                            st.error(f"Erreur lors de la traduction : {e}")
+            if st.button("🌍 Traduire en Ewe"):
+                with st.spinner("Traduction en Ewe..."):
+                    try:
+                        translation_prompt = f"""
+            Traduis fidèlement en Ewe le texte juridique suivant.
+            
+            Consignes :
+            - Ne résume pas.
+            - Ne supprime aucune information.
+            - Ne modifie pas le sens juridique.
+            - Conserve les numéros d'articles et les références aux lois.
+            - Retourne uniquement la traduction en Ewe.
+            
+            Texte à traduire :
+            {st.session_state["last_answer"]}
+            """
+            
+                        translation = pipeline["llm"].invoke(translation_prompt)
+            
+                        st.markdown("### 🌍 Traduction en Ewe")
+                        st.markdown(translation.content)
+            
+                    except Exception as e:
+                        st.error(f"Erreur lors de la traduction : {e}")
 
                 if sources:
                     with st.expander("Sources légales consultées"):
