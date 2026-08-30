@@ -6,7 +6,7 @@ from src.config import CONFIG
 from src.document_loader import load_documents, chunk_documents
 from src.vector_store import create_vector_store, load_vector_store, load_chunks
 from src.retrievers import create_hybrid_retriever, agentic_retrieve, hybrid_retrieve, get_retriever_from_vector_store
-from src.llm_client import create_llm, translate_to_ewe
+from src.llm_client import create_llm
 from src.prompts import create_generation_prompt
 from src.config import CONFIG
 
@@ -703,10 +703,33 @@ if prompt := st.chat_input("Saisissez votre question relative au droit togolais.
 
                 st.markdown(answer)
 
-                if st.button("🌍 Traduire en Ewe", key=f"translate_{len(st.session_state.messages)}"):
+                if st.button("🌍 Traduire en Ewe"):
                     with st.spinner("Traduction en Ewe..."):
                         try:
-                            ewe_translation = translate_to_ewe(answer)
+                            from google import genai
+                            import os
+                
+                            client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+                
+                            response = client.models.generate_content(
+                                model="gemini-3.0-flash",
+                                contents=f"""
+                Traduis le texte juridique suivant en Ewe (langue éwé du Togo).
+                
+                Conserve fidèlement :
+                - le sens juridique ;
+                - les articles et numéros ;
+                - les références aux lois ;
+                - la structure du texte.
+                
+                Ne résume pas et n'ajoute aucune information.
+                
+                Texte à traduire :
+                {answer}
+                """
+                            )
+                
+                            ewe_translation = response.text
                 
                             st.markdown("### 🌍 Traduction en Ewe")
                             st.markdown(ewe_translation)
