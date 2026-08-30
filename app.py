@@ -35,12 +35,7 @@ CONFIG = {
 
 from src.document_loader import load_documents, chunk_documents
 from src.vector_store import create_vector_store, load_vector_store, load_chunks
-from src.retrievers import (
-    create_hybrid_retriever,
-    agentic_retrieve,
-    hybrid_retrieve,
-    get_retriever_from_vector_store,
-)
+from src.retrievers import create_hybrid_retriever, agentic_retrieve, hybrid_retrieve, get_retriever_from_vector_store
 from src.llm_client import create_llm
 from src.prompts import create_generation_prompt
 from src.config import CONFIG
