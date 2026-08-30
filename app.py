@@ -702,6 +702,7 @@ if prompt := st.chat_input("Saisissez votre question relative au droit togolais.
                 )
 
                 st.markdown(answer)
+                st.session_state["last_answer"] = answer
 
                 if st.button("🌍 Traduire en Ewe"):
                     with st.spinner("Traduction en Ewe..."):
@@ -725,7 +726,7 @@ if prompt := st.chat_input("Saisissez votre question relative au droit togolais.
                 Ne résume pas et n'ajoute aucune information.
                 
                 Texte à traduire :
-                {answer}
+                {st.session_state["last_answer"]}
                 """
                             )
                 
