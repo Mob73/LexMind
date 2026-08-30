@@ -6,7 +6,7 @@ from src.config import CONFIG
 from src.document_loader import load_documents, chunk_documents
 from src.vector_store import create_vector_store, load_vector_store, load_chunks
 from src.retrievers import create_hybrid_retriever, agentic_retrieve, hybrid_retrieve, get_retriever_from_vector_store
-from src.llm_client import create_llm
+from src.llm_client import create_llm, translate_to_ewe
 from src.prompts import create_generation_prompt
 from src.config import CONFIG
 
@@ -603,9 +603,11 @@ st.markdown(
         </div>
         <div class="feature-card">
             <div class="feature-number">MODULE 03</div>
-            <div class="feature-title">Analyse Structurée & Synthèse</div>
+            <div class="feature-title">Traduction Juridique en Ewé</div>
             <div class="feature-desc">
-                Présentation synthétique des obligations, sanctions, procédures et droits prévus par la réglementation en vigueur au Togo.
+                Traduction des réponses juridiques en Ewé grâce à l'intelligence artificielle,
+                afin de rendre le droit togolais plus accessible aux personnes qui s'expriment
+                principalement dans cette langue.
             </div>
         </div>
     </div>
@@ -700,6 +702,17 @@ if prompt := st.chat_input("Saisissez votre question relative au droit togolais.
                 )
 
                 st.markdown(answer)
+
+                if st.button("🌍 Traduire en Ewe", key=f"translate_{len(st.session_state.messages)}"):
+                    with st.spinner("Traduction en Ewe..."):
+                        try:
+                            ewe_translation = translate_to_ewe(answer)
+                
+                            st.markdown("### 🌍 Traduction en Ewe")
+                            st.markdown(ewe_translation)
+                
+                        except Exception as e:
+                            st.error(f"Erreur lors de la traduction : {e}")
 
                 if sources:
                     with st.expander("Sources légales consultées"):
