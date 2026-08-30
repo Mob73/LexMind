@@ -603,11 +603,9 @@ st.markdown(
         </div>
         <div class="feature-card">
             <div class="feature-number">MODULE 03</div>
-            <div class="feature-title">Traduction Juridique en Ewé</div>
+            <div class="feature-title">Analyse structurée & synthétique</div>
             <div class="feature-desc">
-                Traduction des réponses juridiques en Ewé grâce à l'intelligence artificielle,
-                afin de rendre le droit togolais plus accessible aux personnes qui s'expriment
-                principalement dans cette langue.
+                Présentation synthétique des obligations, sanctions, procédures et droits prévus par la réglementation en vigueur au Togo.
             </div>
         </div>
     </div>
@@ -647,7 +645,7 @@ if "messages" not in st.session_state:
 # Affichage des messages enregistrés dans la session avec avatars
 for msg in st.session_state.messages:
     avatar_icon = USER_AVATAR if msg["role"] == "user" else AI_AVATAR
-    sender_name = "Utilisateur" if msg["role"] == "user" else "SeNunya Juridique"
+    sender_name = "Utilisateur" if msg["role"] == "user" else "SeNunya"
     
     with st.chat_message(msg["role"], avatar=avatar_icon):
         st.markdown(f"**{sender_name}**")
@@ -704,10 +702,10 @@ if prompt := st.chat_input("Saisissez votre question relative au droit togolais.
                 st.markdown(answer)
                 st.session_state["last_answer"] = answer
 
-                if st.button("🌍 Traduire en Ewe"):
+"""                if st.button("🌍 Traduire en Ewe"):
                     with st.spinner("Traduction en Ewe..."):
                         try:
-                            translation_prompt = f"""
+                            translation_prompt = f"
                 Traduis fidèlement en Ewe le texte juridique suivant.
                 
                 Consignes :
@@ -719,7 +717,7 @@ if prompt := st.chat_input("Saisissez votre question relative au droit togolais.
                 
                 Texte à traduire :
                 {st.session_state["last_answer"]}
-                """
+                "
                 
                             translation = pipeline["llm"].invoke(translation_prompt)
                 
@@ -727,7 +725,7 @@ if prompt := st.chat_input("Saisissez votre question relative au droit togolais.
                             st.markdown(translation.content)
                 
                         except Exception as e:
-                            st.error(f"Erreur lors de la traduction : {e}")
+                            st.error(f"Erreur lors de la traduction : {e}")"""
 
                 if sources:
                     with st.expander("Sources légales consultées"):
