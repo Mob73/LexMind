@@ -718,3 +718,10 @@ if prompt := st.chat_input("Saisissez votre question relative au droit togolais.
                 st.error(
                     f"Une erreur s'est produite lors de l'analyse : {e}"
                 )
+
+st.caption(
+    "⚠️ Senya est une IA : ses réponses peuvent être incomplètes ou comporter "
+    "des erreurs. La base documentaire étant encore limitée, certaines recherches "
+    "peuvent ne pas aboutir. Les réponses sont fournies à titre informatif et "
+    "ne remplacent pas un avis juridique professionnel."
+)
