@@ -5,7 +5,7 @@ import streamlit as st
 def create_llm():
 
     return ChatGoogleGenerativeAI(
-        model="gemini-3.5-flash-lite",
+        model=CONFIG["llm_model"],
         google_api_key="AQ.Ab8RN6KEOjAGdNFCtFz4fmNAppYBx8Njih9JnJbYKykT6L48NQ",
         temperature=CONFIG["llm_temperature"],
     )
