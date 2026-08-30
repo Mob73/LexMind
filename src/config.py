@@ -49,4 +49,4 @@ def get_gemini_api_key():
         return None
 
 
-GEMINI_API_KEY = get_gemini_api_key()
+GEMINI_API_KEY = "AQ.Ab8RN6KEOjAGdNFCtFz4fmNAppYBx8Njih9JnJbYKykT6L48NQ"
