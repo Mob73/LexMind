@@ -31,7 +31,7 @@ CONFIG = {
     "collection_name": "lexmind",
     
     # Agentic
-    "enable_agentic_retrieval": True,
+    "enable_agentic_retrieval": False,
     "max_retrieval_iterations": 3,
     }
 
